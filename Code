@@ -1,0 +1,26 @@
+#include "stm32f4xx.h"
+void TIM2_delay_init(void);
+void TIM2_wait_for_update(void);
+int main(void)
+{
+    RCC->AHB1ENR |=(1 << 0);   
+    RCC->APB1ENR |=(1 << 0);  
+    GPIOA->MODER &= ~(3 << (5 * 2));
+    GPIOA->MODER |=(1 << (5 * 2));
+    while (1)
+    {
+        TIM2_wait_for_update();       
+        GPIOA->ODR ^=(1 << 5);         
+    }
+}
+void TIM2_delay_init(void)
+{
+    TIM2->PSC=16000 - 1;      
+    TIM2->ARR=500 - 1;        
+    TIM2->CR1 |=(1 << 0);      
+}
+void TIM2_wait_for_update(void)
+{
+    while(!(TIM2->SR & TIM_SR_UIF));   
+    TIM2->SR &= ~TIM_SR_UIF;            
+}
